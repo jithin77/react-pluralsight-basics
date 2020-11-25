@@ -1,23 +1,21 @@
-import logo from './logo.svg';
 import './App.css';
+import IncrementButton from './Button'
+import DisplayValue from './Display'
+import React, { useState}  from 'react'
 
 function App() {
+    const [counter,setCounter] =  useState(0);
+    const incrementCounter = (incrementValue)=> {
+        setCounter(counter+incrementValue)
+    }
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <IncrementButton onClickHandler={incrementCounter} increment={1}></IncrementButton>
+      <IncrementButton onClickHandler={incrementCounter} increment={5}></IncrementButton>
+      <IncrementButton onClickHandler={incrementCounter} increment={10}></IncrementButton>
+      <IncrementButton onClickHandler={incrementCounter} increment={100}></IncrementButton>
+      <DisplayValue value={counter}></DisplayValue>
     </div>
   );
 }
