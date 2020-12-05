@@ -1,23 +1,36 @@
 import './App.css';
-import IncrementButton from './Button'
-import DisplayValue from './Display'
 import React, { useState}  from 'react'
+import Authentication from './Authentication/Authentication'
 
 function App() {
-    const [counter,setCounter] =  useState(0);
-    const incrementCounter = (incrementValue)=> {
-        setCounter(counter+incrementValue)
+    const [isAuthenticated, SetisAuthenticated]= useState(false)
+    const authProvider= new Authentication();
+    console.log(authProvider.myMSALObj);
+    const btnStyle = {
+        background:"green",
+        color:"white"
     }
 
-  return (
-    <div className="App">
-      <IncrementButton onClickHandler={incrementCounter} increment={1}></IncrementButton>
-      <IncrementButton onClickHandler={incrementCounter} increment={5}></IncrementButton>
-      <IncrementButton onClickHandler={incrementCounter} increment={10}></IncrementButton>
-      <IncrementButton onClickHandler={incrementCounter} increment={100}></IncrementButton>
-      <DisplayValue value={counter}></DisplayValue>
-    </div>
-  );
+    const handleSignIn = ()=> {
+        authProvider.signIn()
+            .then(response =>{
+                if(response) console.log("through promise",response)
+                authProvider.getTokenPopup(authProvider.loginRequest)
+            })
+        //         getTokenPopup(loginRequest)
+        //   .then(response => {
+        //     callMSGraph(graphConfig.graphMeEndpoint, response.accessToken, updateUI);
+        //     profileButton.classList.add('d-none');
+        //     mailButton.classList.remove('d-none');
+        //   }).catch(error => {
+        //     console.log(error);
+        //   });
+    };
+    return(
+        <button type="button" style={btnStyle} onClick={handleSignIn}>Sign In</button>
+
+
+    )
 }
 
 export default App;
