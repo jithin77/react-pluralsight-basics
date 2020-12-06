@@ -2,13 +2,15 @@ import './App.css';
 import React, { useState,useEffect}  from 'react'
 import Authentication from './Authentication/Authentication'
 import Profile from './Components/Profile'
+import PeoplePickerControl from './Components/PeoplePickerControl'
 
-    const btnSignInStyle = {
+
+const btnSignInStyle = {
         background:"green",
         color:"white",
         padding:"15px",
         margin:"10px"
-    }
+}
     const btnSignOutStyle = {
         background:"red",
         color:"white",
@@ -50,6 +52,7 @@ function App() {
         }
 
     },[])
+
 
     const handleSignIn = ()=> {
         authProvider.signIn()
@@ -94,8 +97,10 @@ function App() {
                 <button type="button" style={btnProfileStyle} onClick={getUserProfile}>View Profile</button>
             </div>
             {userProfileMarkup}
+            <PeoplePickerControl authObj={authProvider}/>
             </>
             }
+            
         </>
 
     )
