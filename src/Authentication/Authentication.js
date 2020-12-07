@@ -56,7 +56,7 @@ export default class Authentication extends react.Component{
         if (this.requiresInteraction(error.errorCode)) {
           this.myMSALObj.acquireTokenRedirect(request);
         }
-    }}, this.signIn, this.signOut);
+    }});
 
     Providers.globalProvider = myProvider;
     Providers.globalProvider.setState(ProviderState.SignedIn)

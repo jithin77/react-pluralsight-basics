@@ -3,10 +3,12 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import NormalPP from './Components/NormalPP'
 
 ReactDOM.render(
   <React.StrictMode>
     <App />
+    {/* <NormalPP></NormalPP> */}
   </React.StrictMode>,
   document.getElementById('root')
 );

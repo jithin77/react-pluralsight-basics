@@ -27,6 +27,7 @@ const btnSignInStyle = {
 
     
 function App() {
+
     const [isAuthenticated, SetisAuthenticated]= useState(false)
     const [profileAccessToken, SetProfileAccessToken] = useState('')
     const [userInfo, setUserInfo] = useState(null)
@@ -47,6 +48,8 @@ function App() {
         .then( accessTokenResponse => {
             SetProfileAccessToken(accessTokenResponse.accessToken)
             SetisAuthenticated(true)
+            authProvider.initializeSimpleProvider(accounts[0])
+        
         })
         .catch(err => SetisAuthenticated (false))
         }

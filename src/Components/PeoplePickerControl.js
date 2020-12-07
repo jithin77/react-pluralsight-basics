@@ -2,32 +2,41 @@
 import { PeoplePicker } from '@microsoft/mgt-react';
 import React from 'react'
 
-
-// const scopes = {
-//         scopes: ["User.Read"]      //account:null
-// };
-
-
-
 export default function PeoplePickerControl (props){
 
-//   let myProvider = new SimpleProvider((scopes) => {
-//         console.log("props", props)
-//         props.authObj.getTokenPopup(scopes)
-//   },props.authObj.signIn,props.authObj.signOut);
-// //,props.authObj.myMSALObj.signIn,props.authObj.myMSALObj.signOut
-//   Providers.globalProvider = myProvider;
-
-  // console.log(Providers.globalProvider)
-
-  // console.log("myprovider",myProvider
   const handlePeopleChange = (e)=>{
       console.log("selected people",e.target.selectedPeople)
   }
+
+  const selectedPeople = [
+    {
+      "@odata.type": "#microsoft.graph.user",
+      "id": "9a6095d5-208a-4664-a369-1e4728dcebb4",
+      "businessPhones": [],
+      "displayName": "Osman Tayeb",
+      "givenName": "Osman",
+      "jobTitle": null,
+      "mail": "Otayeb@isdbdev.org",
+      "mobilePhone": null,
+      "officeLocation": null,
+      "preferredLanguage": null,
+      "surname": "Tayeb",
+      "userPrincipalName": "Otayeb@isdbdev.org",
+      "isFocused": true
+    }
+  ]
+
   return(
     <>
       <p>People Picker</p>
-      <PeoplePicker selectionChanged={handlePeopleChange}/>
+      <PeoplePicker 
+        selectionMode="multiple" 
+        showMax="3"
+        selectionChanged={handlePeopleChange}
+        groupId="75ed7dae-71b6-4360-a303-22587de92f56"
+        selectedPeople={selectedPeople}
+        ></PeoplePicker>
     </>
   )
 }
+
