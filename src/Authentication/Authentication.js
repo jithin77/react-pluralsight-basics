@@ -45,6 +45,8 @@ export default class Authentication extends react.Component{
   initializeSimpleProvider(accountObj) {
 
     let myProvider = new SimpleProvider( async(scopes) => {
+
+    console.log("scopes passed by people picker", scopes)
       let request = {
         scopes: scopes,
         account:accountObj

@@ -1,6 +1,7 @@
 import React  from 'react'
 
 export default function Profile(props){
+    console.log("profile props", props)
   return (
       <div>
           <table>
@@ -18,8 +19,13 @@ export default function Profile(props){
                     Email:
                 </td>
                 <td>
-                  {props.userInfoData.mail}
+                  {props.userInfoData.email}
                 </td>
+              </tr>
+              <tr>
+                  <td>
+                      <img src={props.photo}></img>
+                  </td>
               </tr>
             </tbody>
           </table>

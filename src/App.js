@@ -1,6 +1,6 @@
 import './App.css';
-import React, { useState,useEffect}  from 'react'
-import Authentication from './Authentication/Authentication'
+import React, { Component } from 'react'
+import withAuthProvider from './Authentication/AuthProvider'
 import Profile from './Components/Profile'
 import PeoplePickerControl from './Components/PeoplePickerControl'
 
@@ -25,88 +25,40 @@ const btnSignInStyle = {
         margin:"10px"
     }
 
+
     
-function App() {
-
-    const [isAuthenticated, SetisAuthenticated]= useState(false)
-    const [profileAccessToken, SetProfileAccessToken] = useState('')
-    const [userInfo, setUserInfo] = useState(null)
-    const profileRequest = {
-        scopes: ["User.Read"],
-        account:null
-    };
-    const authProvider= new Authentication();
-
-    useEffect(()=>{
-
-        const accounts = authProvider.myMSALObj.getAllAccounts();
-
-        if (accounts && accounts.length > 0) {
-            // Enhance user object with data from Graph
-            profileRequest.account=accounts[0]
-        authProvider.getTokenPopup(profileRequest)
-        .then( accessTokenResponse => {
-            SetProfileAccessToken(accessTokenResponse.accessToken)
-            SetisAuthenticated(true)
-            authProvider.initializeSimpleProvider(accounts[0])
-        
-        })
-        .catch(err => SetisAuthenticated (false))
+    export class App extends Component {
+        constructor(props){
+            super();
+            this.state={}
         }
-
-    },[])
-
-
-    const handleSignIn = ()=> {
-        authProvider.signIn()
-            .then(response =>{
-                if(response) {
-                    console.log("through promise",response)
-                    SetisAuthenticated(true)
-                    SetProfileAccessToken(response.accessToken)
-                    // silentRequest.account=response.account
-                    // authProvider.getTokenPopup(silentRequest)
-                    // .then(tokenResponse =>{
-                    //     console.log("token response", tokenResponse)
-                    //     SetProfileAccessToken(tokenResponse.accessToken)
-                    // } )
-                }
-            })
-    };
-
-    const getUserProfile = ()=>{
-        authProvider.callMSGraph(profileAccessToken)
-        .then(userData => {
-            console.log("user data", userData)
-            setUserInfo(userData)
-        })
-    }
-
-
-    const handleLogout = ()=>{
-        authProvider.signOut();
-    }
-
-    const userProfileMarkup = userInfo !== null ? <Profile userInfoData={userInfo}/>:null
-
-    return(
-        <>
-            {isAuthenticated===false?<div><button type="button" style={btnSignInStyle} onClick={handleSignIn}>Sign In</button></div>:
+    
+        render() {
+            console.log("render", this.props)
+               
+            const userProfileMarkup = this.props.user !== null ? <Profile userInfoData={this.props.user} photo={this.props.userPhoto}/>:null
+            return (
+                <div>
+                
+            {this.props.isAuthenticated===false?<div><button type="button" style={btnSignInStyle} onClick={this.props.login}>Sign In</button></div>:
             <>
-            <div>
-                <button type="button" style={btnSignOutStyle} onClick={handleLogout}>Sign Out</button> 
-            </div>
-            <div>
-                <button type="button" style={btnProfileStyle} onClick={getUserProfile}>View Profile</button>
-            </div>
-            {userProfileMarkup}
-            <PeoplePickerControl authObj={authProvider}/>
+                <div>
+                    <button type="button" style={btnSignOutStyle} onClick={this.props.logout}>Sign Out</button> 
+                </div>
+                <div>
+                    <button type="button" style={btnProfileStyle} onClick={this.props.getUserProfile}>View Profile</button>
+                </div>
+                {userProfileMarkup}
+                <PeoplePickerControl p={this.props}/>
             </>
             }
-            
-        </>
 
-    )
-}
+                    
+                </div>
+            )
+        }
+    }
+    
+    
 
-export default App;
+export default withAuthProvider(App) ;
