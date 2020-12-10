@@ -1,7 +1,6 @@
-
 import { PeoplePicker } from '@microsoft/mgt-react';
 import React, { Component } from 'react'
-import { Providers, ProviderState,SimpleProvider } from '@microsoft/mgt';
+import { Providers, ProviderState } from '@microsoft/mgt';
 export default class PeoplePickerControl extends Component {
 
     componentDidMount(){
@@ -26,7 +25,7 @@ export default class PeoplePickerControl extends Component {
       ]
 
       handlePeopleChange= (e)=>{
-            console.log("people picker", e)
+            console.log("people picker", e.target.selectedPeople)
       }
     render() {
         return (
@@ -37,7 +36,7 @@ export default class PeoplePickerControl extends Component {
               showMax="3"
               selectionChanged={this.handlePeopleChange}
               // groupId="75ed7dae-71b6-4360-a303-22587de92f56"
-              // selectedPeople={selectedPeople}
+              selectedPeople={this.selectedPeople}
               ></PeoplePicker>
           </>
         )

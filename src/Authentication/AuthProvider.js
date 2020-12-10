@@ -22,23 +22,21 @@ export default function withAuthProvider(WrappedComponent) {
             this.publicClientApplication = new PublicClientApplication(msalConfig)
         }
 
-        componentDidMount() {
-            // If MSAL already has an account, the user
-            // is already logged in
+       async componentDidMount() {
             const accounts = this.publicClientApplication.getAllAccounts();
-            
             if (accounts && accounts.length > 0) {
                 this.setState({accounts:accounts[0]}, this.initializeSimpleProvider);
-                // Enhance user  object with data from Graph
-                this.getUserProfile();
+                await this.getUserProfile();
+                await this.getUserPicture();
+            }else if(accounts.length === 0 && process.env.NODE_ENV === "production"){
+                const accessToken = await this.getAccessToken(authScope.scopes);
+                this.initializeSimpleProvider();
+                await this.getUserProfile();
+                await this.getUserPicture();
             }
         }
 
-
-
         render() {
-            console.log("hoc",this.state)
-      
               return <WrappedComponent
                     error={this.state.error}
                     isAuthenticated={this.state.isAuthenticated}
@@ -71,7 +69,6 @@ export default function withAuthProvider(WrappedComponent) {
         }
 
         async getAccessToken(scopes) {
-            console.log("access token scope", scopes)
             const accounts = this.publicClientApplication
             .getAllAccounts();
             let accessRequest = {
@@ -80,38 +77,23 @@ export default function withAuthProvider(WrappedComponent) {
             }
            
             try {
-               //if (accounts.length <= 0) throw new Error('login_required');
-                // Get the access token silently
-                // If the cache contains a non-expired token, this function
-                // will just return the cached token. Otherwise, it will
-                // make a request to the Azure OAuth endpoint to get a token
                 let silentResult;
                 if(process.env.NODE_ENV === "production"){
                     accessRequest["loginHint"]= await this.getCurrentUser();
                     const testAccount = this.publicClientApplication
                     .getAccountByUsername(await this.getCurrentUser());
-                    console.log("test Account",testAccount)
                     silentResult = await this.publicClientApplication
                     .ssoSilent(accessRequest);
-                    await this.getUserProfile();
-                    await this.getUserPicture();
                  }else if (process.env.NODE_ENV === "development"){
                      silentResult = await this.publicClientApplication
                     .acquireTokenSilent(accessRequest);
-                 }
-                
-                console.log("accessRequest try",accessRequest)
-
-
+                 }              
                 return silentResult.accessToken;
             } catch (err) {
-                // If a silent request fails, it may be because the user needs
-                // to login or grant consent to one or more of the requested scopes
-                console.log("accessRequest catch",accessRequest)
+
                 if (this.isInteractionRequired(err)) {
                     var interactiveResult = await this.publicClientApplication
                         .acquireTokenPopup(accessRequest);
-
                     return interactiveResult.accessToken;
                 } else {
                     throw err;
@@ -154,15 +136,12 @@ export default function withAuthProvider(WrappedComponent) {
                 var accessToken = await this.getAccessToken(userScope.scopes);
                
                 if (accessToken) {
-                    // Get the user's photo from Graph
-                    var userPhoto = await getUserPhoto(accessToken);
-                    
+                    var userPhoto = await getUserPhoto(accessToken);                  
                     this.setState(prevState=>{
                         return {
                             ...prevState,
                             userPhoto:userPhoto 
-                        }
-                                             
+                        }                                           
                     });
                 }
         }
@@ -171,7 +150,6 @@ export default function withAuthProvider(WrappedComponent) {
 
             let myProvider = new SimpleProvider( async(scopes) => {
             const accountObj = this.state.accounts;
-            console.log("scopes passed by people picker", scopes)
               let request = {
                 scopes: scopes,
                 account:accountObj
@@ -230,9 +208,9 @@ export default function withAuthProvider(WrappedComponent) {
             );
         }
 
-        getCurrentUser(){               
+        getCurrentUser(){             
             return new Promise((resolve,reject)=>{
-                axios.get(`/../_api/web/currentuser`)
+                axios.get(`https://dmcs-dev.itfc-idb.org/apps/Memo/_api/web/currentuser`)
                 .then(res => {
                     resolve(res.data.UserId.NameId)
                 })
