@@ -1,12 +1,17 @@
+let redirectUrl = 'http://localhost:3000';
+if(process.env.NODE_ENV === "production"){
+    redirectUrl='https://dmcs-dev.itfc-idb.org/apps/Memo/Pages/Test-Authentication.aspx'
+}
+
 export const msalConfig= { 
         auth: {
             clientId: "8a17f110-fe17-4594-9463-ffc39da24b9c",
             authority: 'https://login.microsoftonline.com/ec9121b6-25f6-408f-9fba-c760737450ab',
-            redirectUri: 'http://localhost:3000'
+            redirectUri: redirectUrl
         },
         cache: {
             cacheLocation: "sessionStorage",
-            storeAuthStateInCookie: false
+            storeAuthStateInCookie: true
         }  
 }
 

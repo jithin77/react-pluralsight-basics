@@ -3,6 +3,7 @@ import {PublicClientApplication} from '@azure/msal-browser';
 import {msalConfig,authScope,userScope} from '../Authentication/AuthenticationConfig';
 import {getUserDetails,getUserPhoto} from './GraphService';
 import { Providers,SimpleProvider } from '@microsoft/mgt';
+import axios from 'axios';
 
 
 export default function withAuthProvider(WrappedComponent) {
@@ -46,14 +47,8 @@ export default function withAuthProvider(WrappedComponent) {
                     logout={() => this.logout()}
                     getAccessToken={(scopes) => this.getAccessToken(scopes)}
                     setError={(message, debug) => this.setErrorMessage(message, debug)}
-                    initializeSimpleProvider={() =>()=>this.testFunction()}
-                    userPhoto={this.state.userPhoto}
-                    testFunction={()=>this.initializeSimpleProvider()}
+                    userPhoto={this.state.userPhoto}                
                     {...this.props} />
-        }
-
-        testFunction(){
-            alert()
         }
 
         async login() {
@@ -76,30 +71,46 @@ export default function withAuthProvider(WrappedComponent) {
         }
 
         async getAccessToken(scopes) {
+            console.log("access token scope", scopes)
+            const accounts = this.publicClientApplication
+            .getAllAccounts();
+            let accessRequest = {
+                scopes: scopes,
+                account: accounts[0]
+            }
+           
             try {
-                const accounts = this.publicClientApplication
-                    .getAllAccounts();
-
-                if (accounts.length <= 0) throw new Error('login_required');
+               //if (accounts.length <= 0) throw new Error('login_required');
                 // Get the access token silently
                 // If the cache contains a non-expired token, this function
                 // will just return the cached token. Otherwise, it will
                 // make a request to the Azure OAuth endpoint to get a token
-                var silentResult = await this.publicClientApplication
-                    .acquireTokenSilent({
-                        scopes: scopes,
-                        account: accounts[0]
-                    });
+                let silentResult;
+                if(process.env.NODE_ENV === "production"){
+                    accessRequest["loginHint"]= await this.getCurrentUser();
+                    const testAccount = this.publicClientApplication
+                    .getAccountByUsername(await this.getCurrentUser());
+                    console.log("test Account",testAccount)
+                    silentResult = await this.publicClientApplication
+                    .ssoSilent(accessRequest);
+                    await this.getUserProfile();
+                    await this.getUserPicture();
+                 }else if (process.env.NODE_ENV === "development"){
+                     silentResult = await this.publicClientApplication
+                    .acquireTokenSilent(accessRequest);
+                 }
+                
+                console.log("accessRequest try",accessRequest)
+
 
                 return silentResult.accessToken;
             } catch (err) {
                 // If a silent request fails, it may be because the user needs
                 // to login or grant consent to one or more of the requested scopes
+                console.log("accessRequest catch",accessRequest)
                 if (this.isInteractionRequired(err)) {
                     var interactiveResult = await this.publicClientApplication
-                        .acquireTokenPopup({
-                            scopes: scopes
-                        });
+                        .acquireTokenPopup(accessRequest);
 
                     return interactiveResult.accessToken;
                 } else {
@@ -157,7 +168,7 @@ export default function withAuthProvider(WrappedComponent) {
         }
 
         initializeSimpleProvider() {
-            debugger;
+
             let myProvider = new SimpleProvider( async(scopes) => {
             const accountObj = this.state.accounts;
             console.log("scopes passed by people picker", scopes)
@@ -206,7 +217,7 @@ export default function withAuthProvider(WrappedComponent) {
         }
 
         isInteractionRequired(error) {
-            debugger;
+         
             if (!error.message || error.message.length <= 0) {
                 return false;
             }
@@ -218,5 +229,14 @@ export default function withAuthProvider(WrappedComponent) {
                 error.message.indexOf('no_account_in_silent_request') > -1
             );
         }
-    };
+
+        getCurrentUser(){               
+            return new Promise((resolve,reject)=>{
+                axios.get(`/../_api/web/currentuser`)
+                .then(res => {
+                    resolve(res.data.UserId.NameId)
+                })
+            })
+        }
+    }
 }

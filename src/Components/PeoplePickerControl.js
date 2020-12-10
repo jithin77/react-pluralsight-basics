@@ -26,7 +26,7 @@ export default class PeoplePickerControl extends Component {
       ]
 
       handlePeopleChange= (e)=>{
-
+            console.log("people picker", e)
       }
     render() {
         return (

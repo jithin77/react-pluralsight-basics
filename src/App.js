@@ -3,6 +3,7 @@ import React, { Component } from 'react'
 import withAuthProvider from './Authentication/AuthProvider'
 import Profile from './Components/Profile'
 import PeoplePickerControl from './Components/PeoplePickerControl'
+import {authScope} from './Authentication/AuthenticationConfig';
 
 
 const btnSignInStyle = {
@@ -32,9 +33,18 @@ const btnSignInStyle = {
             super();
             this.state={}
         }
+
+        componentDidMount(){
+            console.log("Component Did Mount", this.props)
+            console.log("env", process.env.NODE_ENV)
+            if(process.env.NODE_ENV === "production"){
+                     this.props.getAccessToken(authScope.scopes);
+            }
+        }
     
         render() {
-            console.log("render", this.props)
+            
+           
                
             const userProfileMarkup = this.props.user !== null ? <Profile userInfoData={this.props.user} photo={this.props.userPhoto}/>:null
             return (
