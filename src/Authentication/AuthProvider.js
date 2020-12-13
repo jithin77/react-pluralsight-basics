@@ -26,13 +26,10 @@ export default function withAuthProvider(WrappedComponent) {
             const accounts = this.publicClientApplication.getAllAccounts();
             if (accounts && accounts.length > 0) {
                 this.setState({accounts:accounts[0]}, this.initializeSimpleProvider);
-                await this.getUserProfile();
-                await this.getUserPicture();
+                await Promise.all([this.getUserProfile(), this.getUserPicture()]);
             }else if(accounts.length === 0 && process.env.NODE_ENV === "production"){
-                const accessToken = await this.getAccessToken(authScope.scopes);
-                this.initializeSimpleProvider();
-                await this.getUserProfile();
-                await this.getUserPicture();
+                const accessToken = await this.getAccessToken(authScope.scopes);                
+                await Promise.all([this.initializeSimpleProvider(),this.getUserProfile(), this.getUserPicture()]);
             }
         }
 
@@ -53,8 +50,7 @@ export default function withAuthProvider(WrappedComponent) {
             try {
                 await this.publicClientApplication.loginPopup(authScope);
                 this.setState({accounts:this.publicClientApplication.getAllAccounts()[0]},this.initializeSimpleProvider)
-                await this.getUserProfile();
-                await this.getUserPicture();
+                await Promise.all([this.getUserProfile(), this.getUserPicture()]);
             } catch (err) {
                 this.setState({
                     isAuthenticated: false,
@@ -117,7 +113,8 @@ export default function withAuthProvider(WrappedComponent) {
                             givenName:user.givenName,
                             jobTitle:user.jobTitle,
                             mobilePhone:user.mobilePhone,
-                            officeLocation:user.officeLocation
+                            officeLocation:user.officeLocation,
+                            department:user.department
                         },
                         error: null
                     });
@@ -131,10 +128,8 @@ export default function withAuthProvider(WrappedComponent) {
             }
         }
 
-        async getUserPicture() {
-          
-                var accessToken = await this.getAccessToken(userScope.scopes);
-               
+        async getUserPicture() {         
+                var accessToken = await this.getAccessToken(userScope.scopes);              
                 if (accessToken) {
                     var userPhoto = await getUserPhoto(accessToken);                  
                     this.setState(prevState=>{
@@ -146,8 +141,7 @@ export default function withAuthProvider(WrappedComponent) {
                 }
         }
 
-        initializeSimpleProvider() {
-
+       async initializeSimpleProvider() {
             let myProvider = new SimpleProvider( async(scopes) => {
             const accountObj = this.state.accounts;
               let request = {

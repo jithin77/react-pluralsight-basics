@@ -1,6 +1,7 @@
 import { PeoplePicker } from '@microsoft/mgt-react';
 import React, { Component } from 'react'
 import { Providers, ProviderState } from '@microsoft/mgt';
+import './test.css'
 export default class PeoplePickerControl extends Component {
 
     componentDidMount(){

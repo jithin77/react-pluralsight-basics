@@ -13,7 +13,7 @@ export async function getUserDetails(accessToken) {
     const client = getAuthenticatedClient(accessToken);
     const user = await client
         .api('/me')
-        .select('id,displayName,givenName,mail,userPrincipalName,jobTitle,mobilePhone,officeLocation')
+        .select('id,displayName,givenName,mail,department,userPrincipalName,jobTitle,mobilePhone,officeLocation')
         .get();
     return user;
 }

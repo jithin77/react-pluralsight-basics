@@ -28,11 +28,13 @@ const btnSignInStyle = {
     
     export class App extends Component {
         constructor(props){
-            super();
+            super(props);
             this.state={}
+            console.log("App constructor",this.props)
         }
     
-        render() {                 
+        render() {   
+            console.log("App render",this.props)              
             const userProfileMarkup = this.props.user !== null ? <Profile userInfoData={this.props.user} photo={this.props.userPhoto}/>:null
             return (
                 <div>
