@@ -1,11 +1,23 @@
 import { PeoplePicker } from '@microsoft/mgt-react';
 import React, { Component } from 'react'
 import { Providers, ProviderState } from '@microsoft/mgt';
-import './test.css'
+import UserList from './UserList'
+//import MyPeople from './MyPeople'
+//import './test.css'
+
+
+
 export default class PeoplePickerControl extends Component {
+  constructor(props){
+    super(props)
+    this.state={
+      selectedUsers:[]
+    }
+  }
 
     componentDidMount(){
         Providers.globalProvider.setState(ProviderState.SignedIn);
+        MyEvent();
     }
      selectedPeople = [
         {
@@ -26,8 +38,26 @@ export default class PeoplePickerControl extends Component {
       ]
 
       handlePeopleChange= (e)=>{
-            console.log("people picker", e.target.selectedPeople)
+            const selectedUsers = e.target.selectedPeople;
+            this.setState({
+              selectedUsers
+            })
       }
+
+      deleteUserFromPeoplePicker(userID){
+        console.log("lifted up state", userID);
+        let usersCopy = [...this.state.selectedUsers]
+        console.log("usersCopy initial",usersCopy)
+        usersCopy = usersCopy.filter(function( obj ) {
+          return obj.id !== userID;
+        });
+        console.log("usersCopy after filter",usersCopy)
+        this.setState({
+          selectedUsers:usersCopy
+        })
+
+      }
+
     render() {
         return (
             <>
@@ -36,9 +66,17 @@ export default class PeoplePickerControl extends Component {
               selectionMode="multiple" 
               showMax="3"
               selectionChanged={this.handlePeopleChange}
+              //disabled="true"
               // groupId="75ed7dae-71b6-4360-a303-22587de92f56"
-              selectedPeople={this.selectedPeople}
-              ></PeoplePicker>
+              selectedPeople={this.state.selectedUsers}
+              >
+                
+
+              </PeoplePicker>
+              <UserList 
+              users={this.state.selectedUsers}
+              handleUserDeletion={(userID)=>this.deleteUserFromPeoplePicker(userID)}
+              ></UserList>
           </>
         )
     }
