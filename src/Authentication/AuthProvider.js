@@ -29,7 +29,9 @@ export default function withAuthProvider(WrappedComponent) {
       this.loginHint = await this.getCurrentUser();
       console.log('accounts', this.accounts);
       if (this.accounts.length > 0) {
-        await this.getUserProfile();
+        this.getAccessToken(userScope.scopes).then(result => {
+          this.getUserProfile(result);
+        });
       } else if (this.accounts.length === 0) {
         switch (process.env.NODE_ENV) {
           case 'production':
@@ -42,7 +44,7 @@ export default function withAuthProvider(WrappedComponent) {
               .ssoSilent(requestPermissionScope)
               .then(async result => {
                 console.log(result.accessToken);
-                await this.getUserProfile();
+                await this.getUserProfile(result.accessToken);
               })
               .catch(error => {
                 console.log(error);
@@ -87,8 +89,8 @@ export default function withAuthProvider(WrappedComponent) {
     async login() {
       try {
         console.log('authScope', authScope);
-        console.log('loginResponse', await this.publicClientApplication.loginPopup(authScope));
-        await Promise.all([this.getUserProfile(), this.initializeSimpleProvider()]);
+        const loginResponse = await this.publicClientApplication.loginPopup(authScope);
+        await Promise.all([this.getUserProfile(loginResponse.accessToken), this.initializeSimpleProvider()]);
       } catch (err) {
         console.log('this', this);
         this.setState({
@@ -130,9 +132,8 @@ export default function withAuthProvider(WrappedComponent) {
         }
       }
     }
-    async getUserProfile() {
+    async getUserProfile(accessToken) {
       try {
-        var accessToken = await this.getAccessToken(userScope.scopes);
         if (accessToken) {
           await Promise.all([getUserDetails(accessToken), getUserPhoto(accessToken)]).then(results => {
             const user = results[0];
@@ -168,6 +169,7 @@ export default function withAuthProvider(WrappedComponent) {
         });
       }
     }
+    
     initializeSimpleProvider() {
       let myProvider = new SimpleProvider(async scopes => {
         let request = {
@@ -232,8 +234,14 @@ export default function withAuthProvider(WrappedComponent) {
     }
 
     getCurrentUser() {
+      let currentUserUrl;
+      if (process.env.NODE_ENV === 'production') {
+        currentUserUrl = 'https://dmcs-dev.itfc-idb.org/apps/Memo/_api/web/currentUser';
+      } else if (process.env.NODE_ENV === 'development') {
+        currentUserUrl = '_api/web/currentUser';
+      }
       return new Promise((resolve, reject) => {
-        axios.get(`https://dmcs-dev.itfc-idb.org/apps/Memo/_api/web/currentuser`).then(res => {
+        axios.get(`${currentUserUrl}`).then(res => {
           resolve(res.data.UserId.NameId);
         });
       });
