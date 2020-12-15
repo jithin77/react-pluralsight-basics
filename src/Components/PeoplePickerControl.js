@@ -2,7 +2,6 @@ import { PeoplePicker } from '@microsoft/mgt-react';
 import React, { Component } from 'react'
 import { Providers, ProviderState } from '@microsoft/mgt';
 import UserList from './UserList'
-//import MyPeople from './MyPeople'
 //import './test.css'
 
 
@@ -17,7 +16,7 @@ export default class PeoplePickerControl extends Component {
 
     componentDidMount(){
         Providers.globalProvider.setState(ProviderState.SignedIn);
-        MyEvent();
+       
     }
      selectedPeople = [
         {

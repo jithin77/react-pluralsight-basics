@@ -11,5 +11,6 @@ export const msalconfig = {
 }
 
 export const loginRequest = {
-    scopes: ["openid", "profile", "offline_access"]
+    scopes: ["openid", "profile", "offline_access"],
+    state:window.location.href
 }

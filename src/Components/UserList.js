@@ -13,8 +13,7 @@ class UserList extends Component{
   }
 
   render(){
-    console.log("render UserList", this.props.users)
-    const users= this.props.users;
+    const {users}= this.props;
     //debugger
     const usersMarkup =  users.map((user) =>
     <div style={this.style}>
